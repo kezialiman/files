@@ -1,0 +1,72 @@
+///**********************************************************************************
+/// Description: This program determine whether the user input text string is a
+/// palindrome.
+/// Author: Kezia Devina Liman
+/// COMSC 200 Section 5001
+/// Date: February 15, 2019
+/// Status : Complete
+///***********************************************************************************
+
+#include <iostream>
+#include <string>
+using namespace std;
+
+class Palindrome {
+private:
+    string sentences;
+
+public:
+    //Constructor
+    Palindrome() {sentences = " ";};
+    
+    //Mutator and Accessor
+    void setSentences(string s) {sentences = s;};
+    string getSentences() {return sentences;};
+    
+    //Function
+    int sentenceLength();
+    bool checkPalindrome(int a, int b);
+};
+
+int Palindrome::sentenceLength() {
+    int length = sentences.size();
+    return length;
+}
+
+bool Palindrome::checkPalindrome(int a, int b) {
+    if (sentences[a] != sentences[b]) {
+        return false;
+    }
+    else {
+        if (a != sentences.size()/2) {
+            a = a+1;
+            b = b-1;
+        }
+        else {
+            return true;
+        }
+        return checkPalindrome(a,b);
+    }
+}
+
+int main() {
+    
+   string testStrings[6] =
+    {   "ABLE WAS I ERE I SAW ELBA",
+        "FOUR SCORE AND SEVEN YEARS AGO",
+        "NOW IS THE TIME FOR ALL GOOD MEN",
+        "DESSERTS I STRESSED",
+        "ASK NOT WHAT YOUR COUNTRY CAN DO FOR YOU",
+        "KAYAK" };
+    
+    for( int i=0; i<6; i++ ) {
+        Palindrome p;
+        p.setSentences(testStrings[i]);
+        if (p.checkPalindrome(0,p.sentenceLength()-1) == 1) {
+            cout << "\"" << p.getSentences() << "\" is a palindrome." << endl;
+        }
+        else {
+            cout << "\"" << p.getSentences() << "\" is NOT a palindrome." << endl;
+        }
+    }
+}
