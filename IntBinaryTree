@@ -1,0 +1,416 @@
+#include <iostream>
+#include <vector>
+#include <sstream>
+#include <string>
+#include <iomanip>
+using namespace std;
+
+class IntBinaryTree
+{
+private:
+    struct TreeNode
+    {
+        int value;         // The value in the node
+        TreeNode *left;    // Pointer to left child node
+        TreeNode *right;   // Pointer to right child node
+    };
+    
+    TreeNode *root;       // Pointer to the root node
+    
+    // Private member functions
+    void insert(TreeNode *&, TreeNode *&);
+    void destroySubTree(TreeNode *);
+    void deleteNode(int, TreeNode *&);
+    void makeDeletion(TreeNode *&);
+    
+    
+    TreeNode* newNode(int data) {
+        TreeNode* node = new TreeNode();
+        node->value = data;
+        node->left = NULL;
+        node->right = NULL;
+        
+        return node;
+    }
+    
+    void balancedTree(vector<int> node, int start, int end) {
+        
+        if (start <= end) {
+        
+            int mid = (start + end)/2;
+            insertNode(node.at(mid));
+            balancedTree(node, start, mid - 1);
+            balancedTree(node, mid + 1, end);
+        }
+    }
+    
+    void display(TreeNode *root) {
+        vector<int> record;
+        travInOrder(record);
+        
+        int start = 0;
+        int end = record.size() - 1;
+        
+        for (int i=0; i < record.size(); i++) {
+            remove(record.at(i));
+        }
+        
+        balancedTree(record, start, end);
+    }
+    
+    bool travInOrder(TreeNode *root, vector<int> &record) {
+        if (root){
+            if(root->left) travInOrder(root->left, record);
+            record.push_back(root->value);
+            if(root->right) travInOrder(root->right, record);
+        }
+        return true;
+    }
+    
+    
+    void displayInOrder(TreeNode *) const;
+    void displayPreOrder(TreeNode *) const;
+    void displayPostOrder(TreeNode *) const;
+    void printInOrder(const TreeNode *p, string lpad, string rpad) const;
+    
+    
+public:
+    // Constructor
+    IntBinaryTree()
+    { root = nullptr; }
+    
+    // Destructor
+    ~IntBinaryTree()
+    { destroySubTree(root); }
+    
+    // Binary tree operations
+    void insertNode(int);
+    bool searchNode(int);
+    void remove(int);
+    
+    void displayInOrder() const
+    {  displayInOrder(root); }
+    
+    void displayPreOrder() const
+    {  displayPreOrder(root); }
+    
+    void displayPostOrder() const
+    {  displayPostOrder(root); }
+    void printInOrder () const { printInOrder(root, " ", " "); }
+    
+    
+    bool travInOrder( vector<int> &record ) {
+        travInOrder( root, record );
+        return true;
+    }
+    
+    void display() { display(root); }
+    
+};
+
+void IntBinaryTree::printInOrder(const TreeNode *p, string lpad, string rpad) const {
+    string pad = lpad.substr(0, lpad.size() - 1);
+    if (p == nullptr)    return;
+    printInOrder(p->right, rpad + "    |", rpad + "     ");
+    cout << pad << "+--" << setw(3) << p->value << endl;
+    printInOrder(p->left, lpad + "     ", lpad + "    |");
+}
+
+void IntBinaryTree::insert(TreeNode *&nodePtr, TreeNode *&newNode)
+{
+    if (nodePtr == nullptr)
+        nodePtr = newNode;                  // Insert the node.
+    else if (newNode->value < nodePtr->value)
+        insert(nodePtr->left, newNode);     // Search the left branch
+    else
+        insert(nodePtr->right, newNode);    // Search the right branch
+}
+
+//**********************************************************
+// insertNode creates a new node to hold num as its value, *
+// and passes it to the insert function.                   *
+//**********************************************************
+
+void IntBinaryTree::insertNode(int num)
+{
+    TreeNode *newNode = nullptr;    // Pointer to a new node.
+    
+    // Create a new node and store num in it.
+    newNode = new TreeNode;
+    newNode->value = num;
+    newNode->left = newNode->right = nullptr;
+    
+    // Insert the node.
+    insert(root, newNode);
+}
+
+//***************************************************
+// destroySubTree is called by the destructor. It   *
+// deletes all nodes in the tree.                   *
+//***************************************************
+
+void IntBinaryTree::destroySubTree(TreeNode *nodePtr)
+{
+    if (nodePtr)
+    {
+        if (nodePtr->left)
+            destroySubTree(nodePtr->left);
+        if (nodePtr->right)
+            destroySubTree(nodePtr->right);
+        delete nodePtr;
+    }
+}
+
+//***************************************************
+// searchNode determines if a value is present in   *
+// the tree. If so, the function returns true.      *
+// Otherwise, it returns false.                     *
+//***************************************************
+
+bool IntBinaryTree::searchNode(int num)
+{
+    TreeNode *nodePtr = root;
+    
+    while (nodePtr)
+    {
+        if (nodePtr->value == num)
+            return true;
+        else if (num < nodePtr->value)
+            nodePtr = nodePtr->left;
+        else
+            nodePtr = nodePtr->right;
+    }
+    return false;
+}
+
+//**********************************************
+// remove calls deleteNode to delete the       *
+// node whose value member is the same as num. *
+//**********************************************
+
+void IntBinaryTree::remove(int num)
+{
+    deleteNode(num, root);
+}
+
+
+//********************************************
+// deleteNode deletes the node whose value   *
+// member is the same as num.                *
+//********************************************
+
+void IntBinaryTree::deleteNode(int num, TreeNode *&nodePtr)
+{
+    if (num < nodePtr->value)
+        deleteNode(num, nodePtr->left);
+    else if (num > nodePtr->value)
+        deleteNode(num, nodePtr->right);
+    else
+        makeDeletion(nodePtr);
+}
+
+
+//***********************************************************
+// makeDeletion takes a reference to a pointer to the node  *
+// that is to be deleted. The node is removed and the       *
+// branches of the tree below the node are reattached.      *
+//***********************************************************
+
+void IntBinaryTree::makeDeletion(TreeNode *&nodePtr)
+{
+    // Define a temporary pointer to use in reattaching
+    // the left subtree.
+    TreeNode *tempNodePtr = nullptr;
+    
+    if (nodePtr == nullptr)
+        cout << "Cannot delete empty node.\n";
+    else if (nodePtr->right == nullptr)
+    {
+        tempNodePtr = nodePtr;
+        nodePtr = nodePtr->left;   // Reattach the left child
+        delete tempNodePtr;
+    }
+    else if (nodePtr->left == nullptr)
+    {
+        tempNodePtr = nodePtr;
+        nodePtr = nodePtr->right;  // Reattach the right child
+        delete tempNodePtr;
+    }
+    // If the node has two children.
+    else
+    {
+        // Move one node the right.
+        tempNodePtr = nodePtr->right;
+        // Go to the end left node.
+        while (tempNodePtr->left)
+            tempNodePtr = tempNodePtr->left;
+        // Reattach the left subtree.
+        tempNodePtr->left = nodePtr->left;
+        tempNodePtr = nodePtr;
+        // Reattach the right subtree.
+        nodePtr = nodePtr->right;
+        delete tempNodePtr;
+    }
+}
+
+//****************************************************************
+// The displayInOrder member function displays the values        *
+// in the subtree pointed to by nodePtr, via inorder traversal.  *
+//****************************************************************
+
+void IntBinaryTree::displayInOrder(TreeNode *nodePtr) const
+{
+    if (nodePtr)
+    {
+        displayInOrder(nodePtr->left);
+        cout << nodePtr->value << " ";
+        displayInOrder(nodePtr->right);
+    }
+}
+
+//****************************************************************
+// The displayPreOrder member function displays the values       *
+// in the subtree pointed to by nodePtr, via preorder traversal. *
+//****************************************************************
+
+void IntBinaryTree::displayPreOrder(TreeNode *nodePtr) const
+{
+    if (nodePtr)
+    {
+        cout << nodePtr->value << " ";
+        displayPreOrder(nodePtr->left);
+        displayPreOrder(nodePtr->right);
+    }
+}
+
+//****************************************************************
+// The displayPostOrder member function displays the values      *
+// in the subtree pointed to by nodePtr, via postorder traversal.*
+//****************************************************************
+
+void IntBinaryTree::displayPostOrder(TreeNode *nodePtr) const
+{
+    if (nodePtr)
+    {
+        displayPostOrder(nodePtr->left);
+        displayPostOrder(nodePtr->right);
+        cout << nodePtr->value << " ";
+    }
+}
+
+void menu() {
+    cout << "-- Integer Binary Search Tree --" << endl;
+    cout << "B - to Batch enter Tree" << endl;
+    cout << "b - to balance Tree" << endl;
+    cout << "C - to clear Tree" << endl;
+    cout << "D - to Display Tree (2D)" << endl;
+    cout << "1 - to Pre order Traversal" << endl;
+    cout << "2 - to In Order Traversal" << endl;
+    cout << "3 - to Post Order Traversal" << endl;
+    cout << "m - menu" << endl;
+    cout << "Q - to Quit" << endl;
+}
+
+void ask() {
+    cout << "Enter your command: ";
+}
+
+
+int main() {
+    
+    IntBinaryTree b;
+    bool command = true;
+    
+    menu();
+    
+    while (command) {
+        cout << endl;
+        ask();
+        char x;
+        cin >> x;
+        
+        switch (x) {
+            case 'C':
+            case 'c':
+            {
+                b.~IntBinaryTree();
+                break;
+            }
+            
+            case 'B':
+            {
+                string str;
+                cout << "Enter a list of integers seperated by comma (,): ";
+                cin.ignore();
+                getline(cin,str);
+                
+                vector<int> vect;
+                stringstream ss(str);
+                int i;
+                
+                while (ss >> i)
+                {
+                    vect.push_back(i);
+                    
+                    if (ss.peek() == ',')
+                        ss.ignore();
+                }
+                
+                for (i=0; i<vect.size(); i++) {
+                    b.insertNode(vect.at(i));
+                }
+                break;
+                
+            }
+                
+            case 'D':
+            case 'd':
+            {
+                b.printInOrder();
+                break;
+            }
+                
+            case 'Q':
+            case 'q':
+            {
+                command = false;
+                break;
+            }
+                
+            case '1':
+            {
+                b.displayPreOrder();
+                break;
+            }
+            
+            case '2':
+            {
+                b.displayInOrder();
+                break;
+            }
+                
+            case '3':
+            {
+                b.displayPostOrder();
+                break;
+            }
+            
+            case 'm':
+            case 'M':
+            {
+                menu();
+                break;
+            }
+            
+            case 'b':
+            {
+                b.display();
+                break;
+            }
+                
+            default:
+                break;
+        }
+    }
+    
+}
