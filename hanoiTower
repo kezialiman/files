@@ -1,0 +1,58 @@
+#include <iostream>
+#include <vector>
+using namespace std;
+
+vector <int> init;
+vector <int> temp;
+vector <int> dest;
+
+void printOutput() {
+    cout << "src: ";
+    for (int i=0; i<init.size(); i++) {
+        cout << init.at(i) << " ";
+    }
+    
+    cout << "| dest: ";
+    for (int i=0; i<dest.size(); i++) {
+        cout << dest.at(i) << " ";
+    }
+    
+    cout << "| temp: ";
+    for (int i=0; i<temp.size(); i++) {
+        cout << temp.at(i) << " ";
+    }
+    
+    cout << endl;
+}
+
+
+void moveDiscs(int height, vector<int> &init, vector<int> &dest, vector<int> &temp) {
+    
+    if (height > 0) {
+        
+        moveDiscs(height-1, init, temp, dest);
+        dest.push_back(init.back());
+        init.pop_back();
+        printOutput();
+        moveDiscs(height-1, temp, dest, init);
+    }
+}
+
+int main() {
+    int height;
+    cout << "Enter hanoi tower height: ";
+    cin >> height;
+    int num = height;
+    
+    for (int i = 0; i < height; i++) {
+        init.push_back(num);
+        num--;
+    }
+    
+    printOutput();
+    moveDiscs(height, init, dest, temp);
+    
+    cout << "--- exit!" << endl;
+}
+
+
