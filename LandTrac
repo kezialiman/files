@@ -1,0 +1,178 @@
+#include <iostream>
+#include <sstream>
+using namespace std;
+
+class FeetInches;
+
+// (Friend step 2) Forward Declaration of Friend Function
+ostream &operator << (ostream &, const FeetInches &);
+istream &operator >> (istream &, FeetInches &);
+
+class FeetInches {
+    int feet;        // To hold a number of feet
+    int inches;         // To hold a number of inches
+    void simplify();// header only Definition below
+public:
+    // argument constructor
+    FeetInches(int f = 0, int i= 0) {feet = f; inches = i; simplify();}
+    //FeetInches(int f, int i)
+    //{ feet = f; inches = i; simplify(); }
+    
+    // Added definition outside
+    FeetInches(string s);
+    // copy constructor - must 1. pass ref var.
+    FeetInches (const FeetInches &fi)
+    { feet = fi.feet; inches = fi.inches; simplify(); }
+    // assignment operator
+    FeetInches operator = (const FeetInches &right)
+    { feet = right.feet; inches = right.inches; simplify(); return *this;}
+    // Mutator
+    void setFeet(int f) { feet = f; }
+    void setInches(int i) { inches = i; simplify(); }
+    // Accessor
+    int getFeet() const { return feet; }
+    int getInches() const { return inches; }
+    
+    // Overloaded operator functions
+    FeetInches operator + (const FeetInches &);    // Overloaded +
+    FeetInches operator - (const FeetInches &);    // Overloaded -
+    FeetInches operator ++ ();                    // Prefix ++
+    FeetInches operator ++ (int);                // Postfix ++
+    bool operator > (const FeetInches &);        // Overloaded >
+    bool operator < (const FeetInches &);        // Overloaded <
+    bool operator == (const FeetInches &);        // Overloaded ==
+    
+    // Object Type Converter declaration
+    operator int() { return feet; }
+    operator double() {
+        double temp = feet; temp += (inches / 12.0); return temp; }
+    
+    // (Friends Step 3) Friend Function Declaration
+    friend ostream &operator << (ostream &, const FeetInches &);
+    friend istream &operator >> (istream &, FeetInches &);
+};
+
+void FeetInches::simplify(){
+    if (inches >= 12) {
+        feet += (inches / 12);
+        inches = inches % 12; }
+    else if (inches < 0) {
+        feet -= ((abs(inches) / 12) + 1);    // quotion for feets
+        inches = 12 - (abs(inches) % 12); }    // remainder for inches
+    if( feet < 0 && inches >0 ) { feet += 1; inches -= 12; }
+}
+
+FeetInches FeetInches::operator + (const FeetInches &right) {
+    FeetInches temp;
+    temp.inches = inches + right.inches;
+    temp.feet = feet + right.feet;
+    temp.simplify();
+    return temp;
+}
+
+ostream &operator << (ostream &strm, const FeetInches &rhs) {
+    strm << rhs.feet << "\' " << rhs.inches << "\" ";
+    return strm;
+}
+
+istream &operator >> (istream &strm, FeetInches &rhs) {
+    char c; // 3'5"
+    strm >> rhs.feet;
+    strm >> c;
+    strm >> rhs.inches;
+    rhs.simplify();
+    return strm;
+}
+
+// string argument Constructor
+FeetInches::FeetInches(string s) {
+    stringstream ss(s);
+    ss >> feet;
+    char peekchar = ss.peek();
+    if( ss && peekchar == '\'' ) {
+        ss.get();
+        ss >> inches;
+    }
+}
+
+class LandTract {
+private:
+    FeetInches m_length;
+    FeetInches m_width;
+public:
+    LandTract() {m_length = 0; m_width = 0;}
+    LandTract(FeetInches length, FeetInches width) {
+        m_length = length; m_width = width;}
+    
+    void setLength (int feet, int inches) {
+        m_length.setFeet(feet);
+        m_length.setInches(inches);
+    }
+    void setWidth (int feet, int inches) {
+        m_width.setFeet(feet);
+        m_width.setInches(inches);
+    }
+    FeetInches getLength() {return m_length;}
+    FeetInches getWidth() {return m_width;}
+    
+    FeetInches calculateArea() {
+        FeetInches area;
+        area = double(m_length) * double(m_width);
+        return area;
+    }
+};
+
+void Menu() {
+    cout << "_______ LandTract Class Test Menu __________" << endl;
+    cout << "    m - menu" << endl;
+    cout << "    n - new LandTract" << endl;
+    cout << "    d - display the LandTract attributes" << endl;
+    cout << "    q - Quit" << endl << endl;
+}
+
+int main() {
+    LandTract tract;
+    char ans;
+    Menu();
+    cout << "    Enter your choice: ";
+    cin >> ans;
+    while (ans != 'q') {
+        if (ans == 'm') {
+            Menu();
+            cout << "    Enter your choice: ";
+            cin >> ans;
+        }
+        if (ans == 'n') {
+            int feet1, feet2;
+            int inches1, inches2;
+            cout << "  Enter Tract Width in Feet, then Inches: " << endl;
+            cout << "    Enter Feet: ";
+            cin >> feet1;
+            cout << "    Enter Inches: ";
+            cin >> inches1;
+            tract.setWidth(feet1, inches1);
+            
+            cout << "  Enter Tract Length in Feet, then Inches: " << endl;
+            cout << "    Enter Feet: ";
+            cin >> feet2;
+            cout << "    Enter Inches: ";
+            cin >> inches2;
+            tract.setLength(feet2, inches2);
+            Menu();
+            cout << "    Enter your choice: ";
+            cin >> ans;
+        }
+        
+        if (ans == 'd') {
+            cout << "  the width is: " << tract.getWidth() << endl;
+            cout << "  the length is: " << tract.getLength() << endl;
+            cout << "  the area is: " << tract.calculateArea() << endl;
+            Menu();
+            cout << "    Enter your choice: ";
+            cin >> ans;
+        }
+    }
+    
+    cout << "Program exits! " << endl;
+    
+}
