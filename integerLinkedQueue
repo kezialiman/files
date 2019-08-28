@@ -1,0 +1,455 @@
+#include <iostream>
+#include <sstream>
+#include <vector>
+#include <string>
+using namespace std;
+
+class SubsError{
+    int number;
+public: SubsError(int var):number(var){}
+    int getValue(){ return number; }
+};
+
+
+class IntLinkedQueue {
+private:
+    struct Node {
+        int data;
+        Node *next;
+    };
+    Node *front; //
+    Node *rear; //
+    Node *p;
+    Node *pp;
+    int size; //
+    
+public:
+    // Default Constructor
+    IntLinkedQueue() : front(nullptr), rear(nullptr), size(0) {}
+  
+    void queue_append(int n) {
+        Node *newNode;
+        Node *nodePtr;
+        
+        newNode = new Node;
+        newNode->data = n;
+        newNode->next = nullptr;
+        
+        if (!front) {
+            front = newNode;
+        }
+        else {
+            nodePtr = front;
+            while (nodePtr->next) {
+                nodePtr = nodePtr->next;
+            }
+            nodePtr->next = newNode;
+        }
+    }
+    
+    bool append(int &n) {
+        Node *nodePtr;
+        Node *previousNode;
+        nodePtr = front;
+        
+        while (nodePtr->next != nullptr) {
+            previousNode = nodePtr;
+            nodePtr = nodePtr->next;
+        }
+        if (nodePtr->data == n) {return true;}
+        else {return false;}
+    }
+    
+    int get_subscript(int n) {
+        Node *nodePtr;
+        vector <int> queue;
+        nodePtr = front;
+        
+            while (nodePtr) {
+                queue.push_back(nodePtr->data);
+                nodePtr = nodePtr->next;
+            }
+        
+        return queue.at(n);
+    }
+    
+    void modify(int n, int num) {
+        Node *newNode;
+        Node *nodePtr;
+        Node *previousNode;
+        
+        newNode = new Node;
+        newNode->data = n;
+        
+        nodePtr = front;
+        previousNode = nullptr;
+        
+        while (nodePtr) {
+            if (nodePtr->data == n) {
+                break;
+            }
+            nodePtr = nodePtr->next;
+            
+        }
+        
+        nodePtr->data = num;
+    }
+    
+    void remove_front() {
+        Node *nodePtr;
+        if (!front) {
+            return;
+        }
+        else {
+            cout << "removed " << front->data << endl;
+            nodePtr = front->next;
+            delete front;
+            front = nodePtr;
+        }
+    }
+    
+    bool fremove(int n) {
+        if (front->data == n) {return true;}
+        else {return false;}
+    }
+    
+    void remove_back() {
+        Node *nodePtr;
+        Node *previousNode;
+        if (!front) {
+            return;
+        }
+        else {
+            nodePtr = front;
+            while (nodePtr->next != nullptr) {
+                previousNode = nodePtr;
+                nodePtr = nodePtr->next;
+            }
+            cout << "remove " << nodePtr->data << endl;
+            previousNode->next = nullptr;
+            delete nodePtr;
+        }
+    }
+    
+    bool rremove(int n) {
+        Node *nodePtr;
+        Node *previousNode;
+        nodePtr = front;
+        
+        while (nodePtr->next != nullptr) {
+            previousNode = nodePtr;
+            nodePtr = nodePtr->next;
+        }
+        if (nodePtr->data == n) {return true;}
+        else {return false;}
+    }
+    
+    void queue_add(int n) {
+        Node *newNode;
+        Node *tempNode;
+        
+        newNode = new Node;
+        newNode->data = n;
+        
+        if (!front) {
+            front = newNode;
+            newNode->next = nullptr;
+        }
+        else {
+            tempNode = front;
+            front = newNode;
+            newNode->next = tempNode;
+        }
+    }
+    
+    bool add(int &n) {
+        if (front->data == n) {return true;}
+        else {return false;}
+    }
+    
+    int getSize() {
+        Node *nodePtr;
+        size = 0;
+        if (!front) {
+            return size;
+        }
+        else {
+            nodePtr = front;
+            while (nodePtr != nullptr) {
+                nodePtr = nodePtr->next;
+                size = size+1;
+            }
+            return size;
+        }
+    }
+    
+    bool isEmpty() {
+        if (!front) {
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
+    
+    void queue_clear() {
+        Node *nodePtr;
+        Node *nextNode;
+        
+        nodePtr = front;
+        
+        while (nodePtr != nullptr) {
+            nextNode = nodePtr->next;
+            delete nodePtr;
+            nodePtr = nextNode;
+        }
+        front = nullptr;
+        cout << "Queue is cleared." << endl;
+    }
+    
+    string toString() {
+        string element;
+        Node *nodePtr;
+        nodePtr = front;
+        if (!front) {
+            return " ";
+        }
+        else {
+        element += to_string(nodePtr->data) + ", ";
+        while (nodePtr) {
+            nodePtr = nodePtr->next;
+            if (nodePtr->next == nullptr) {
+                break;
+            }
+            else {
+                element += to_string(nodePtr->data) + ", ";
+            }
+        }
+        element += to_string(nodePtr->data) + "\n";
+        nodePtr = nodePtr->next;
+        return element;
+        }
+    }
+    
+    // Destructor; // return all dynamically allocated nodes
+    ~IntLinkedQueue() {
+        Node *nodePtr;
+        Node *nextNode;
+        
+        nodePtr = front;
+        
+        while (nodePtr != nullptr) {
+            nextNode = nodePtr->next;
+            delete nodePtr;
+            nodePtr = nextNode;
+        }
+    }
+
+};
+
+string del = ","; // default delimiter
+
+void menu()
+{
+    cout << "\n--- AS9 LinkedQueue Test Menu ---\n"
+    << " N - to bulk create New Queue\n"
+    << " D - to Display\n"
+    << " E - is Empty?\n"
+    << " A - to Add ~ push front\n"
+    << " a - to append ~ push back\n"
+    << " R - to Remove ~ pop front\n"
+    << " r - to Remove ~ pop back\n"
+    << " G - to get by subscription\n"
+    << " P - to put by subscription\n"
+    << " L - Length of Queue?\n"
+    << " C - to Clear\n"
+    << " Q - to Q this program\n"
+    << " H - this menu\n";
+}
+
+int main() {
+    bool stay = true;
+    
+    // create one instance for each of the test classes
+    cout << "\nInstanciate an object of Queue\n";
+    // string catchVar; // To hold values popped off the Queue
+    IntLinkedQueue q;
+    
+    cout << "\nFirst, test with hard-wired data sets!\n"
+    << "For example, \nyou may use one set of tokens for all test classes: \n";
+    string choice; // user input for choices
+    string str; // user input for queue, delimiter, ...
+    int s[] = {1, 3, 5, 7, 9};
+    vector<int> input(s, end(s));
+    
+    // show the initial queue
+    int input_size = input.size();
+    for (auto item : input ) {
+        cout << item << ((input_size <= 1) ? " " : ", ");
+        input_size--;
+    }
+    cout << endl;
+    
+    // initialize the Queue class instances
+    for (auto i: input) q.queue_append( i );
+    cout << "\nUse menu to test a Queue class instance.\n";
+    menu();
+    // main menu while
+    while(stay) { // main menu while starts
+        cout << "\n Enter your command: ";
+        stay = true;
+        cin >> choice;
+        cin.ignore();
+        int pos;
+        string input;
+        string token;
+        int item;
+        stringstream sst;
+        stringstream ss;
+        int Queue_size;
+        char ans;
+        
+        if(choice.size() == 1) {
+            char ch = choice[0];
+            vector<string> dump;
+            string value;
+            switch(ch) { // main menu switch starts
+                case'd':
+                case'D':
+                {
+                    cout << q.toString();
+                    break;
+                }
+                
+                case'e':
+                case'E':
+                {
+                    cout << "Is the queue empty? ";
+                    if (q.isEmpty() == true) {cout << "yes" << endl;}
+                    else {cout << "no" << endl;}
+                    break;
+                }
+                    
+                case 'a':
+                {
+                    cout << "Enter a number: ";
+                    cin >> pos;
+                    cin.ignore();
+                    q.queue_append(pos);
+                    cout << "Queue: " << q.toString();
+                    
+                    cout << "Test add: ";
+                    if (q.append(pos) == true) {cout << "true" << endl;}
+                    else {cout << "false" << endl;}
+                    //q.append(pos);
+                    break;
+                }
+                
+                case 'A':
+                {
+                    cout << "Enter a number: ";
+                    cin >> pos;
+                    cin.ignore();
+                    q.queue_add(pos);
+                    cout << "Queue: " << q.toString();
+                    
+                    cout << "Test add: ";
+                    if (q.add(pos) == true) {cout << "true" << endl;}
+                    else {cout << "false" << endl;}
+                    break;
+                }
+                
+                case 'R':
+                {
+                    int n = q.get_subscript(1);
+                    q.remove_front();
+                    
+                    cout << "Test fremove: ";
+                    if (q.fremove(n) == true) {cout << "true" << endl;}
+                    else {cout << "false" << endl;}
+                    break;
+                }
+                
+                case 'r':
+                {
+                    int n = q.get_subscript(q.getSize()-2);
+                    q.remove_back();
+                    
+                    cout << "Test rremove: ";
+                    if (q.rremove(n) == true) {cout << "true" << endl;}
+                    else {cout << "false" << endl;}
+                    break;
+                }
+                
+                case 'g':
+                case 'G':
+                {
+                    cout << "Enter the 0-based index: ";
+                    cin >> pos;
+                    cin.ignore();
+                    cout << "The Queue[" << pos << "] is " << q.get_subscript(pos) << endl;
+                    cout << "To modify y/n? ";
+                    cin >> ans;
+                    cin.ignore();
+                    if (ans == 'y') {
+                        cout << "What is the new number: ";
+                        int num;
+                        cin >> num;
+                        cin.ignore();
+                        q.modify(q.get_subscript(pos),num);
+                    }
+                    else {
+                        cout << "Nothing to modify or invalind input" << endl;
+                    }
+                    break;
+                }
+                    
+                case 'l':
+                case 'L':
+                {
+                    Queue_size = q.getSize();
+                    cout << "Number of enries in Queue: " << Queue_size << endl;
+                    break;
+                }
+                    
+                case 'c':
+                case 'C':
+                {
+                    q.queue_clear();
+                    break;
+                }
+                
+                case 'n':
+                case 'N':
+                {
+                    if(!q.isEmpty()) q.queue_clear();
+                    cout << "\t\tEnter a line of comma (,) delmited data set: ";
+                    getline (cin, input); // user input -> string
+                    ss << input; // string -> stream
+                    while ( getline(ss, token, ',') ) { // stream -> string token
+                        stringstream sst(token);
+                        sst >> item;
+                        q.queue_append(item);
+                    }
+                    break;
+                }
+                    
+                case 'q': // exit Queue sub-menu
+                case 'Q':
+                    stay = false;
+                    break;
+                    
+                case 'h': // help - display menu
+                case 'H':
+                case '?':
+                    menu();
+                    break;
+                    
+                default:
+                    cout << "\nInvalid Selection!\nTry again!\n\n";
+                    
+            } // end of menu switch
+        } // only process single character
+    } // end of main menu while
+    cout << "Program exit!\n";
+} // end of main
