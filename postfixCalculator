@@ -1,0 +1,82 @@
+#include <iostream>
+#include <vector>
+#include <cmath>
+#include <iomanip>
+using namespace std;
+
+int calc(char op, int num1, int num2) {
+    int result = 0;
+    switch(op) {
+        case '*': result = num1 * num2; break;
+        case '/': result = num1 / num2; break;
+        case '+': result = num1 + num2; break;
+        case '-': result = num1 - num2; break;
+        case '^': result = pow(num1,num2); break;
+    }
+    return result;
+}
+
+int main() {
+    string postfix;
+    
+    cout << "Enter a valid postfix expression: " << endl;
+    getline(cin,postfix);
+    
+    cout << "Opr_Stack_____________ Postfix_Queue_" << endl;
+    cout << setw(32) << right << postfix << endl;
+    
+    vector <char> queue;
+    for (int i = 0; i < postfix.size(); i++) {
+        queue.push_back(postfix[i]);
+    }
+    
+    vector <int> stack;
+    
+    for (int i=0; i<queue.size();) {
+        if (queue.at(i) != '*' && queue.at(i) != '/' && queue.at(i) != '+' &&
+            queue.at(i) != '-' && queue.at(i) != '^') {
+            stack.push_back(int(queue.at(i))-48);
+            vector <char>::iterator it = queue.begin() + i;
+            queue.erase(it);
+            for (int j=0; j<stack.size(); j++) {
+                cout << stack.at(j);
+            }
+            cout << setw(24) << right << " ";
+            
+            for (int k=0; k < queue.size(); k++) {
+                cout << queue.at(k);
+            }
+            cout << endl;
+        }
+        else {
+            vector<char>::iterator it = queue.begin();
+            char temp = queue.at(i);
+            queue.erase(it);
+            cout << setw(27) << left << " " << " ";
+            
+            for (int j = 0; j < queue.size(); j++) {
+                cout << queue.at(j);
+            }
+            cout << endl;
+            
+            for (int k = 0; k < stack.size()-2; k++) {
+                cout << stack.at(k);
+            }
+            cout << "(" << stack.at(stack.size()-2) << temp << stack.at(stack.size()-1) << ")" << endl;
+            int compute = calc(temp,stack.at(stack.size()-2), stack.at(stack.size()-1));
+            
+            stack.pop_back();
+            stack.pop_back();
+            stack.push_back(compute);
+            
+            for (int l = 0; l < stack.size(); l++) {
+                cout << stack.at(l);
+            }
+            cout << setw(25) << right << " ";
+            for (int m = 0; m < queue.size(); m++) {
+                cout << queue.at(m);
+            }
+            cout << endl;
+        }
+    }
+}
