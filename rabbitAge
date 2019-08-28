@@ -1,0 +1,44 @@
+#include <iostream>
+#include <cstring>
+using namespace std;
+
+int rabbit (int n, string indent, int initial) {
+    int result = 0;
+    
+    if (n <= 2) {
+        
+        cout << indent;
+        cout << "Enter n = " << n << endl;
+        
+        
+        result += 1;
+    }
+    else {
+        cout << indent;
+        indent += "      ";
+        cout << "Enter n = " << n << endl;
+        result = rabbit(n-1, indent, initial) + rabbit(n-2, indent, initial);
+        indent.erase(indent.end() - 6, indent.end());
+    }
+    
+    cout << indent;
+    cout << "Leave n = " << n << " instance = " << result << endl;
+    
+    if (n == initial) {
+        cout << endl;
+        cout << "After " << initial << " years, " << result << " rabbits!" << endl << endl;
+    }
+    else {
+      return result;
+    }
+}
+
+int main() {
+    int age;
+    string indent = "";
+    
+    cout << "Enter the age of the rabbit: ";
+    cin >> age;
+    
+    cout << rabbit(age, indent, age) << endl;
+}
