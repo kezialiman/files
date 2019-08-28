@@ -1,0 +1,162 @@
+///************************************************************************************
+/// Description: This program create an angle class that can convert GPS decimal to DMS
+/// Author: Kezia Devina Liman
+/// COMSC 200 Section 5001
+/// Date: February 15, 2019
+/// Status : Complete
+///*************************************************************************************
+
+#include <iostream>
+#include <math.h>
+#include <iomanip>
+using namespace std;
+
+class Angle {
+private:
+    int degrees;
+    int minutes;
+    float seconds;
+    char direction;
+public:
+    //Constructors
+    Angle() {degrees = 0; minutes = 0; seconds = 0; direction = 'N';};
+    Angle (int d, int m, int s, char dr)
+    {degrees = d; minutes = m; seconds = s; direction = dr;};
+    Angle (double c, bool b);
+    
+    //Mutators and Accessors
+    void setDegrees(int d) {degrees = d;};
+    void setMinutes(int m) {minutes = m;};
+    void setSeconds(float s) {seconds = s;};
+    void setDirection (char dr) {direction = dr;};
+    
+    int getDegrees() {return degrees;};
+    int getMinutes() {return minutes;};
+    float getSeconds() {return seconds;};
+    char getDirection() {return direction;};
+    
+    //Functions
+    void convertGPS(float c, bool l);
+    void print();
+};
+
+Angle::Angle(double c, bool l) {
+    
+    if (l == 0) {
+        if (c > 90 || c < -90) {direction = ' '; cout << "\t\tLatitude not valid" << endl;}
+        else {
+            if (c >= 0) {direction = 'N';}
+            else {direction = 'S';}
+        }
+    }
+    else {
+        if (c > 180 || c < -180) {direction = ' '; cout << "\t\tLongitude not valid" << endl;}
+        else {
+            if (c >= 0) {direction = 'E';}
+            else {direction = 'W';}
+        }
+    }
+    
+    double intPart, fractPart;
+    c = abs(c);
+    
+    fractPart = modf(c, &intPart);
+    degrees = intPart;
+    
+    fractPart = modf(fractPart*60, &intPart);
+    minutes = intPart;
+    
+    seconds = fractPart*60;
+}
+
+void Angle::convertGPS(float c, bool l) {
+    if (l == 0) {
+        if (c > 90 || c < -90) {direction = ' '; cout << "\t\tLatitude not valid" << endl;}
+        else {
+            if (c >= 0) {direction = 'N';}
+            else {direction = 'S';}
+        }
+    }
+    else {
+        if (c > 180 || c < -180) {direction = ' '; cout << "\t\tLongitude not valid" << endl;}
+        else {
+            if (c >= 0) {direction = 'E';}
+            else {direction = 'W';}
+        }
+    }
+    
+    double intPart, fractPart;
+    c = abs(c);
+    
+    fractPart = modf(c, &intPart);
+    degrees = intPart;
+    
+    fractPart = modf(fractPart*60, &intPart);
+    minutes = intPart;
+    
+    seconds = fractPart*60;
+}
+
+void Angle::print() {
+    if (direction == ' ') {
+        cout << "Not valid";
+    }
+    else {
+        cout << degrees << "° " << minutes << "' " << fixed << setprecision(2) << seconds << "'' " << direction;
+    }
+}
+
+int main() {
+    double lat, lon;
+    
+    cout << "\tDisplay initiated DMS: " << endl;
+    Angle latB;
+    latB.setDegrees(-70);
+    latB.setMinutes(34);
+    latB.setSeconds(8);
+    latB.setDirection('S');
+    Angle lonB (23,8,6,'E');
+    
+    cout << "\t\t";
+    latB.print();
+    cout << ", ";
+    lonB.print();
+    cout << "\n";
+
+    cout << "\n\tEnter GPS-style coordinates:"
+    << "\n\t\tLatitude: (+/- 0-90.00): ";
+    cin >> lat;
+    cout << "\t\tLongitude: (+/- 0-180.00): ";
+    cin >> lon;
+    
+    Angle latA(lat, 0);
+    Angle lonA(lon, 1);
+    
+    cout << "\tConverted from GPS to DMS, " << lat << ", " << lon << " is:" << endl;
+    cout << "\t\t ";
+    latA.print();
+    cout << ", ";
+    lonA.print();
+    cout << endl << endl;
+    
+    Angle latC, lonC;
+    
+    cout << "\n\tEnter GPS-style coordinates:"
+    << "\n\t\tLatitude: (+/- 0-90.00): ";
+    cin >> lat;
+    cout << "\t\tLongitude: (+/- 0-180.00): ";
+    cin >> lon;
+    
+    latC.convertGPS(lat,0);
+    lonC.convertGPS(lon,1);
+    
+    cout << "\tConverted from GPS to DMS, " << lat << ", " << lon << " is:" << endl;
+    cout << "\t\t ";
+    latC.print();
+    cout << ", ";
+    lonC.print();
+    cout << endl << endl;
+    
+}
+
+
