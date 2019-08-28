@@ -1,0 +1,208 @@
+#include<iostream>
+#include<cmath>
+#include<stack>
+#include<iomanip>
+#include<vector>
+
+using namespace std;
+
+int  calc(char token, int num1, int num2);
+bool hasPrec(char op1, char op2);
+int  getWeight( char op );
+bool in2postfix( deque<char> &operatorSTK, string &infixQ, string &postfixQ );
+int  postfixCalc( string postfixQ );
+
+int main() {
+    // Naming Convention: All containers has a pending STK or Q
+    // In this program we used 3 containers:
+    string infix;      // infix expression
+    string infixQ;     // infix Queue
+    string postfixQ;   // postfix Queue
+    deque<char> operatorSTK; // for resolving (^, *, /, +, -) In-Coming Priority
+
+    operatorSTK = {' '};
+
+    cout << "Please enter an INFIX expression: ";
+    getline(cin, infix);
+    
+    //cout << "InFix Expression: " << infix;
+    for(char c:infix) {
+        if( isdigit(c) || c=='^' || c=='(' || c==')' ||
+           c=='+' || c=='-' || c=='*' || c=='/' )
+            infixQ += c;
+    }
+    
+    if( !in2postfix( operatorSTK, infixQ, postfixQ ) ) {
+        cout << "failed the conversion to postfix!";
+        exit(EXIT_FAILURE);
+    }
+    
+    cout << "\nPostfix => " << postfixQ << endl;
+    int k = 1;
+    
+    
+    vector <char> queue;
+    for (int i = 0; i < postfixQ.size(); i++) {
+        queue.push_back(postfixQ[i]);
+    }
+    
+    vector <int> stack;
+    int answer;
+    
+    for (int i=0; i<queue.size();) {
+        if (queue.at(i) != '*' && queue.at(i) != '/' && queue.at(i) != '+' &&
+            queue.at(i) != '-' && queue.at(i) != '^') {
+            stack.push_back(int(queue.at(i))-48);
+            vector <char>::iterator it = queue.begin() + i;
+            queue.erase(it);
+            
+        }
+        else {
+            vector<char>::iterator it = queue.begin();
+            char temp = queue.at(i);
+            queue.erase(it);
+            
+            
+            cout << "Step " << k << ": "<<stack.at(stack.size()-2) << temp << stack.at(stack.size()-1)<<" = ";
+            int compute = calc(temp,stack.at(stack.size()-2), stack.at(stack.size()-1));
+            
+            k++;
+            stack.pop_back();
+            stack.pop_back();
+            stack.push_back(compute);
+            
+            cout<<stack.back()<<endl;
+            answer = stack.back();
+            
+        }
+    }
+    
+    
+    cout<< "Answer: " << answer << endl;
+    
+    
+    return 0;
+}
+
+bool in2postfix( deque<char> &operatorSTK, string &infixQ, string &postfixQ ) {
+    bool result = true;
+    cout << endl;
+ 
+    // Infix to Postfix Conversion, parsing left to right:
+    while(true){
+        
+        cout << "OP Stack: ";
+        for(auto x:operatorSTK) cout << x;
+        for(int i=0; i<(15 - operatorSTK.size()); i++) cout << ' ';
+        cout << setw(20) << right << "Postfix Queue: " << postfixQ << endl;
+  
+        if( infixQ.empty() ) break; // infix Q is empty - done!
+        
+        // parsing the infixQ left to right, reading the front of infixQ
+        char in = infixQ[0]; infixQ.erase(0,1);
+        
+        if( '0'<=in && in<='9') // If an operand: output it into the postfix postfixQ
+        { postfixQ += in; continue; }
+        
+        
+        switch( in ) {
+         case '(': // push into the operator operatorSTK
+         operatorSTK.push_back(in); break;
+
+         /*case '1': case '2': case '3':
+         postfixQ += in;*/
+         //operatorSTK.push_front(in); break;
+
+         case ')':  // pop operator operatorSTK to postfix postfixQ
+         // until matching ‘(‘ is popped from the operatorSTK
+         while(true) {
+         char op = operatorSTK.back(); 
+         operatorSTK.pop_back();
+         if( op == '(' ) break;
+         postfixQ += op ;  // add to postfix
+         } break;
+         
+         // To determine the ICP, i.e. In-coming vs OperatorStk.front()
+         case '+': case '-': case '*': case '/': case '^':
+         {
+         // If the operatorSTK.front() is empty or top of the Operator operatorSTK is
+         //   ‘(‘ lower precedence, then push onto Operator operatorSTK
+         char op = operatorSTK.back();
+         while( !operatorSTK.empty() && hasPrec(op, in ) ) { // ICP In-Coming Priority
+         postfixQ += op;  operatorSTK.pop_back();
+         op = operatorSTK.back();
+         /*for(auto x:operatorSTK) cout << x;
+         cout << "OP Stack:  " << op;
+         cout << setw(33) << right << "Postfix Queue: " << postfixQ << endl;*/
+         cout << "OP Stack: ";
+        for(auto x:operatorSTK) cout << x;
+        for(int i=0; i<(15 - operatorSTK.size()); i++) cout << ' ';
+      
+        cout << setw(20) << right << "Postfix Queue: " << postfixQ << endl;
+         }
+         operatorSTK.push_back(in);
+         break;
+         }
+         
+         default:
+         cout << "Unknown symbol " << in << " encountered!\n";
+         result = false;
+         break;
+         }// end of switch
+        
+        if(in=='#') break;
+    } // end of while true for infix to postfix
+    
+    // the end of infixQ
+    // pop remaining operator operatorSTK to postfix postfixQ
+    while( !operatorSTK.empty() ) {
+        
+        char op = operatorSTK.back(); operatorSTK.pop_back();
+        postfixQ += op ;
+    }
+    
+        cout << "OP Stack: ";
+        for(auto x:operatorSTK) cout << x;
+        for(int i=0; i<(15 - operatorSTK.size()); i++) cout << ' ';
+      
+        cout << setw(20) << right << "Postfix Queue: " << postfixQ << endl;
+
+    return result;
+}
+
+// Two argumented Calculator
+int calc(char token, int num1, int num2){
+    int result;
+    switch(token) {
+        case '*': result = num1 * num2; break;
+        case '/': result = num1 / num2; break;
+        case '+': result = num1 + num2; break;
+        case '-': result = num1 - num2; break;
+        case '^': result = pow(num1, num2); break;
+    }
+    return result;
+}
+
+// Compare ISP: In-Stack Priority Weight
+bool hasPrec(char op1, char op2) {
+    int op_pr1 = getWeight(op1);
+    int op_pr2 = getWeight(op2);
+    if(op_pr1 == op_pr2) {
+        if(op1 == '^') return false;
+        return true;
+    }
+    return op_pr1 >= op_pr2 ? true:false;
+}
+
+// Determine ISP: In-Stack Priority Weight
+int getWeight( char op ) {
+    int w = -1;
+    switch (op) {
+        case '+':
+        case '-': w = 1; break;
+        case '*':
+        case '/': w = 2; break;
+        case '^': w = 3; break;
+    }
+    return w;
+}
